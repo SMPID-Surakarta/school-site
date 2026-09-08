@@ -1,0 +1,1 @@
+ALTER TABLE "settings" ADD COLUMN "footer_config" jsonb;

@@ -1,0 +1,1 @@
+ALTER TABLE "banners" ADD COLUMN "title_font_size" integer DEFAULT 60 NOT NULL;

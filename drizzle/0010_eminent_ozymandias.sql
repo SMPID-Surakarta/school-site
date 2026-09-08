@@ -1,0 +1,1 @@
+ALTER TABLE "settings" ADD COLUMN "theme_config" jsonb;

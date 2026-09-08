@@ -1,0 +1,179 @@
+@import 'tailwindcss';
+
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+
+/* Skeleton UI v4 (core + theme). Scan the Svelte component library for utility classes. */
+@import '@skeletonlabs/skeleton';
+@import '@skeletonlabs/skeleton/themes/cerberus';
+
+@source '../../node_modules/@skeletonlabs/skeleton-svelte/dist';
+
+/*
+ * Kunci ke light theme (instruksi UI/UX: light theme untuk public & admin).
+ * Variant `dark` hanya aktif jika [data-mode='dark'] dipasang eksplisit — tidak
+ * pernah dipasang, sehingga prefers-color-scheme gelap tidak mengubah tampilan.
+ */
+@custom-variant dark (&:where([data-mode='dark'], [data-mode='dark'] *));
+
+html {
+	color-scheme: light;
+}
+
+/* Self-hosted variable fonts (bukan Google Fonts CDN). */
+@import '@fontsource-variable/space-grotesk';
+@import '@fontsource-variable/plus-jakarta-sans';
+@import '@fontsource-variable/jetbrains-mono';
+
+/*
+ * Design tokens — arah "blueprint / lembar kerja teknik" (SMK).
+ * Lihat .github/instructions/ui-ux-public.instructions.md.
+ * Didefinisikan di @theme agar tersedia sebagai utility Tailwind
+ * (bg-bg-subtle, text-ink, text-ink-muted, bg-primary, border-line, dst).
+ */
+@theme {
+	--color-bg: #ffffff;
+	--color-bg-subtle: #f5f8fa;
+	--color-ink: #14212e;
+	--color-ink-muted: #52697d;
+	--color-primary: #1d4e89;
+	--color-accent: #f2994a;
+	--color-on-accent: #000000;
+	--color-accent-on-light: #1d4e89;
+	--color-accent-on-dark: #f2994a;
+	--color-accent-on-primary: #ffffff;
+	--color-line: #d8e1e8;
+	--color-success: #2e7d5b;
+
+	--container-public: 82.5rem;
+
+	--font-display: 'Space Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
+	--font-sans: 'Plus Jakarta Sans Variable', 'Inter', ui-sans-serif, system-ui, sans-serif;
+	--font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+}
+
+/*
+ * Override theme Skeleton (cerberus) agar komponen bawaan (btn, card, input, badge)
+ * mengikuti palet blueprint — primary = biru blueprint, surface = abu kebiruan,
+ * warning = amber bengkel, success = hijau status. Skala dibangun di sekitar token.
+ */
+[data-theme='cerberus'] {
+	--base-font-family: var(--font-sans);
+	--heading-font-family: var(--font-display);
+	--base-font-color: var(--color-ink);
+	--body-background-color: var(--color-bg);
+
+	--color-primary-50: #f0f5fa;
+	--color-primary-100: #dce7f3;
+	--color-primary-200: #b9cfe7;
+	--color-primary-300: #8fb0d6;
+	--color-primary-400: #5a87bc;
+	--color-primary-500: #1d4e89;
+	--color-primary-600: #1a4477;
+	--color-primary-700: #163a66;
+	--color-primary-800: #112e51;
+	--color-primary-900: #0c223d;
+	--color-primary-950: #071627;
+
+	--color-surface-50: #f5f8fa;
+	--color-surface-100: #e9eff4;
+	--color-surface-200: #d8e1e8;
+	--color-surface-300: #b7c5d1;
+	--color-surface-400: #8ca0b1;
+	--color-surface-500: #52697d;
+	--color-surface-600: #43576a;
+	--color-surface-700: #354657;
+	--color-surface-800: #263444;
+	--color-surface-900: #1a2634;
+	--color-surface-950: #14212e;
+
+	--color-success-50: #e9f4ef;
+	--color-success-100: #d0e8dd;
+	--color-success-200: #a4d2bd;
+	--color-success-300: #77bb9d;
+	--color-success-400: #4d9c7b;
+	--color-success-500: #2e7d5b;
+	--color-success-600: #286e50;
+	--color-success-700: #215c43;
+	--color-success-800: #1a4a35;
+	--color-success-900: #133727;
+	--color-success-950: #0c241a;
+	--color-success-contrast-400: var(--color-success-contrast-light);
+
+	--color-warning-50: #fef4ea;
+	--color-warning-100: #fce6d2;
+	--color-warning-200: #f9cda5;
+	--color-warning-300: #f6b878;
+	--color-warning-400: #f4a75e;
+	--color-warning-500: #f2994a;
+	--color-warning-600: #d97f31;
+	--color-warning-700: #b26424;
+	--color-warning-800: #8a4b1a;
+	--color-warning-900: #613310;
+	--color-warning-950: #3b1e08;
+}
+
+/*
+ * Elemen signature & pola bersama (dipakai hemat — lihat instruksi).
+ */
+
+/* Eyebrow label: mono, kapital kecil, ala spec sheet. */
+.eyebrow {
+	font-family: var(--font-mono);
+	font-size: 0.75rem;
+	font-weight: 500;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	color: var(--color-primary);
+}
+
+/* Grid tipis ala kertas blueprint — murni CSS, tanpa gambar. */
+.blueprint-grid {
+	background-image:
+		linear-gradient(to right, var(--color-line) 1px, transparent 1px),
+		linear-gradient(to bottom, var(--color-line) 1px, transparent 1px);
+	background-size: 48px 48px;
+}
+
+/* Crop mark: penanda L kecil di sudut, ala gambar teknik. */
+.crop-marks {
+	position: relative;
+}
+.crop-marks::before,
+.crop-marks::after {
+	content: '';
+	position: absolute;
+	width: 14px;
+	height: 14px;
+	border-color: var(--color-primary);
+	border-style: solid;
+	pointer-events: none;
+}
+.crop-marks::before {
+	top: -1px;
+	left: -1px;
+	border-width: 2px 0 0 2px;
+}
+.crop-marks::after {
+	bottom: -1px;
+	right: -1px;
+	border-width: 0 2px 2px 0;
+}
+
+/* Focus state terlihat jelas di semua elemen interaktif. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+	outline: 2px solid var(--color-primary);
+	outline-offset: 2px;
+}
+
+/* Hormati prefers-reduced-motion. */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}
