@@ -12,6 +12,7 @@
 	let { data, children }: { data: LayoutData; children: import('svelte').Snippet } = $props();
 
 	const social = $derived(data.settings?.socialMedia ?? {});
+	const logoSrc = $derived(data.logoUrl || schoolLogo);
 	const socialLinks = $derived(
 		[
 			{ key: 'instagram' as const, name: 'Instagram', url: social.instagram },
@@ -137,7 +138,7 @@
 		<div class="mx-auto flex min-h-20 max-w-public items-center justify-between gap-4 px-4 py-3">
 			<a href={resolve('/')} class="flex min-w-0 items-center gap-3">
 				<img
-					src={schoolLogo}
+					src={logoSrc}
 					alt="Logo {data.siteName}"
 					class="size-11 shrink-0 object-contain transition-transform duration-200 sm:size-13 {scrolled
 						? 'scale-90'

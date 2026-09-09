@@ -40,6 +40,8 @@ export function themeStyle(theme: ThemeConfig): string {
 	const tokens: Record<string, string> = {
 		'--color-primary': primary,
 		'--color-accent': accent,
+		'--color-bg-subtle': `color-mix(in srgb, ${primary}, white 96%)`,
+		'--color-line': `color-mix(in srgb, ${primary}, white 82%)`,
 		'--color-on-accent': whiteContrast(accent) >= 4.5 ? '#ffffff' : '#000000',
 		'--color-accent-on-light': whiteContrast(accent) >= 4.5 ? accent : primary,
 		'--color-accent-on-dark':

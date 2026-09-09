@@ -31,6 +31,8 @@ describe('theme configuration', () => {
 		});
 		expect(style).toContain('--color-primary: #16634a');
 		expect(style).toContain('--color-primary-500: #16634a');
+		expect(style).toContain('--color-bg-subtle: color-mix(in srgb, #16634a, white 96%)');
+		expect(style).toContain('--color-line: color-mix(in srgb, #16634a, white 82%)');
 		expect(style).toContain('--color-on-accent: #ffffff');
 		expect(style).toContain('Space Grotesk Variable');
 	});

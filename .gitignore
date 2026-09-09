@@ -26,3 +26,7 @@ test-results
 
 # Uploaded media (local storage)
 /uploads
+
+# Archives
+*.zip
+

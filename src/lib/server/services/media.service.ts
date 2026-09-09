@@ -11,12 +11,16 @@ export type Actor = { id: string; role: Role };
 /** Whether media upload is available (always true with local-disk storage). */
 export const uploadEnabled: boolean = storage.isStorageConfigured;
 
-/** List media for the library. ADMIN sees all; EDITOR sees their own uploads. */
-export async function listMedia(actor: Actor): Promise<Media[]> {
+/** List media for the library. ADMIN sees all; EDITOR sees their own uploads by default, or all when selecting. */
+export async function listMedia(
+	actor: Actor,
+	options?: { all?: boolean; limit?: number }
+): Promise<Media[]> {
 	if (!can(actor.role, 'read', 'media')) throw AppError.forbidden();
-	return actor.role === 'ADMIN'
-		? mediaRepo.listRecent(200)
-		: mediaRepo.listByUploader(actor.id, 200);
+	const limit = options?.limit ?? 200;
+	return actor.role === 'ADMIN' || options?.all
+		? mediaRepo.listRecent(limit)
+		: mediaRepo.listByUploader(actor.id, limit);
 }
 
 export async function uploadImage(actor: Actor, file: File, altText?: string): Promise<Media> {

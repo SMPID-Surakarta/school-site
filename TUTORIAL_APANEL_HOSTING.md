@@ -78,6 +78,7 @@ bun --version  # verifikasi
 ```
 
 Atau install via npm:
+
 ```bash
 npm install -g bun
 ```
@@ -129,6 +130,7 @@ cd websmk
 ```
 
 Atau jika sudah ada `.git`:
+
 ```bash
 git pull origin main
 ```
@@ -182,6 +184,7 @@ NODE_ENV="production"
 ```
 
 **⚠️ PENTING:**
+
 - Jangan share `AUTH_SECRET` atau `DATABASE_URL` di repository
 - Gunakan password yang strong
 - Generate AUTH_SECRET dengan: `openssl rand -base64 32`
@@ -207,6 +210,7 @@ bun run db:push
 ```
 
 Perintah ini akan:
+
 - Membaca schema Drizzle dari `src/lib/db/schema/`
 - Membuat tabel di PostgreSQL
 - Seed data awal (jika ada script seed)
@@ -519,6 +523,7 @@ sudo systemctl status certbot.timer
 ### 10.1 Monitoring Aplikasi
 
 #### Dengan PM2:
+
 ```bash
 pm2 monit               # real-time dashboard
 pm2 logs                # lihat logs real-time
@@ -527,6 +532,7 @@ pm2 status              # status apps
 ```
 
 #### Dengan Supervisor:
+
 ```bash
 sudo supervisorctl tail websmk-cms      # lihat logs
 sudo supervisorctl status               # status
@@ -659,9 +665,9 @@ gzip on;
 gzip_vary on;
 gzip_proxied any;
 gzip_comp_level 6;
-gzip_types text/plain text/css text/xml text/javascript 
-            application/json application/javascript application/xml+rss 
-            application/rss+xml font/truetype font/opentype 
+gzip_types text/plain text/css text/xml text/javascript
+            application/json application/javascript application/xml+rss
+            application/rss+xml font/truetype font/opentype
             application/vnd.ms-fontobject image/svg+xml;
 ```
 

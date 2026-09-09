@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ImagePlus, MapPin, PanelBottom, Phone, Settings, Share2 } from '@lucide/svelte';
 	import { superForm } from 'sveltekit-superforms';
 	import type { PageData } from './$types';
 
@@ -10,7 +11,11 @@
 	});
 
 	let selectedMenuIds = $state<string[]>($form.footerSelectedMenuIds || []);
-	let activeTab = $state<'general' | 'contact' | 'social' | 'integration' | 'footer'>('general');
+	let activeTab = $state<'general' | 'logo' | 'contact' | 'social' | 'integration' | 'footer'>(
+		'general'
+	);
+	let logoUploading = $state(false);
+	let faviconUploading = $state(false);
 
 	function toggleMenu(menuId: string) {
 		if (selectedMenuIds.includes(menuId)) {
@@ -21,12 +26,83 @@
 		$form.footerSelectedMenuIds = selectedMenuIds;
 	}
 
+	async function uploadLogo(event: Event) {
+		const input = event.target as HTMLInputElement;
+		const file = input.files?.[0];
+		if (!file) return;
+
+		logoUploading = true;
+		try {
+			const formData = new FormData();
+			formData.append('file', file);
+			formData.append('kind', 'image');
+			formData.append('altText', 'Logo ' + $form.schoolName);
+
+			const response = await fetch('/admin/api/media', {
+				method: 'POST',
+				body: formData
+			});
+
+			if (!response.ok) {
+				const err = await response.json();
+				alert('Gagal mengunggah logo: ' + err.message);
+				return;
+			}
+
+			const result = await response.json();
+			$form.logoMediaId = result.id;
+			data.logoUrl = result.url;
+		} catch (err) {
+			console.error('Logo upload error:', err);
+			alert('Gagal mengunggah logo');
+		} finally {
+			logoUploading = false;
+			input.value = '';
+		}
+	}
+
+	async function uploadFavicon(event: Event) {
+		const input = event.target as HTMLInputElement;
+		const file = input.files?.[0];
+		if (!file) return;
+
+		faviconUploading = true;
+		try {
+			const formData = new FormData();
+			formData.append('file', file);
+			formData.append('kind', 'image');
+			formData.append('altText', 'Favicon ' + $form.schoolName);
+
+			const response = await fetch('/admin/api/media', {
+				method: 'POST',
+				body: formData
+			});
+
+			if (!response.ok) {
+				const err = await response.json();
+				alert('Gagal mengunggah favicon: ' + err.message);
+				return;
+			}
+
+			const result = await response.json();
+			$form.faviconMediaId = result.id;
+			data.faviconUrl = result.url;
+		} catch (err) {
+			console.error('Favicon upload error:', err);
+			alert('Gagal mengunggah favicon');
+		} finally {
+			faviconUploading = false;
+			input.value = '';
+		}
+	}
+
 	const tabs = [
-		{ id: 'general', label: 'Umum', icon: '⚙️' },
-		{ id: 'contact', label: 'Kontak', icon: '📞' },
-		{ id: 'social', label: 'Media Sosial', icon: '📱' },
-		{ id: 'integration', label: 'Lokasi & Integrasi', icon: '🗺️' },
-		{ id: 'footer', label: 'Footer', icon: '📍' }
+		{ id: 'general', label: 'Umum', icon: Settings },
+		{ id: 'logo', label: 'Logo & Favicon', icon: ImagePlus },
+		{ id: 'contact', label: 'Kontak', icon: Phone },
+		{ id: 'social', label: 'Media Sosial', icon: Share2 },
+		{ id: 'integration', label: 'Lokasi & Integrasi', icon: MapPin },
+		{ id: 'footer', label: 'Footer', icon: PanelBottom }
 	] as const;
 </script>
 
@@ -60,7 +136,7 @@
 							? 'border-primary text-primary'
 							: 'border-transparent text-ink-muted hover:text-ink'}"
 					>
-						<span class="text-base">{tab.icon}</span>
+						<tab.icon size={18} class="shrink-0" aria-hidden="true" />
 						<span>{tab.label}</span>
 					</button>
 				{/each}
@@ -100,6 +176,127 @@
 								{#if $errors.description}<span class="text-sm text-error-500"
 										>{$errors.description}</span
 									>{/if}
+							</label>
+						</div>
+					</div>
+				{/if}
+
+				<!-- Logo & Favicon Tab -->
+				{#if activeTab === 'logo'}
+					<div id="tab-panel-logo" role="tabpanel" aria-labelledby="tab-logo" class="space-y-6">
+						<!-- Hidden form fields -->
+						<input type="hidden" name="logoMediaId" bind:value={$form.logoMediaId} />
+						<input type="hidden" name="faviconMediaId" bind:value={$form.faviconMediaId} />
+
+						<!-- Logo Upload -->
+						<div class="space-y-3">
+							<h3 class="font-semibold">Logo Utama</h3>
+							<p class="text-sm text-ink-muted">
+								Logo akan ditampilkan di header website. Rekomendasi ukuran: 200x80px atau lebih
+								besar dengan rasio aspek 2.5:1
+							</p>
+
+							{#if data.logoUrl}
+								<div class="flex items-center gap-3 rounded border border-line bg-bg-subtle p-3">
+									<img src={data.logoUrl} alt="Logo saat ini" class="h-12 object-contain" />
+									<div class="flex-1">
+										<p class="text-sm font-medium">Logo saat ini</p>
+									</div>
+									<button
+										type="button"
+										onclick={() => {
+											$form.logoMediaId = null;
+											data.logoUrl = null;
+										}}
+										class="btn btn-sm preset-tonal-error-500"
+									>
+										Hapus
+									</button>
+								</div>
+							{/if}
+
+							<label
+								class="flex cursor-pointer items-center gap-3 rounded border-2 border-dashed border-line p-4 transition-colors hover:border-primary hover:bg-primary-50"
+							>
+								<input
+									type="file"
+									accept="image/*"
+									onchange={uploadLogo}
+									disabled={logoUploading}
+									class="hidden"
+								/>
+								<div class="flex-1">
+									<p class="font-medium">
+										{logoUploading ? 'Mengunggah...' : 'Klik untuk unggah logo'}
+									</p>
+									<p class="text-xs text-ink-muted">PNG, JPG, WebP • Max 5MB</p>
+								</div>
+								{#if logoUploading}
+									<span
+										class="inline-block h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent"
+									></span>
+								{:else}
+									<span class="text-2xl">📤</span>
+								{/if}
+							</label>
+						</div>
+
+						<div class="border-t border-line pt-6"></div>
+
+						<!-- Favicon Upload -->
+						<div class="space-y-3">
+							<h3 class="font-semibold">Favicon</h3>
+							<p class="text-sm text-ink-muted">
+								Favicon adalah ikon kecil yang muncul di tab browser. Rekomendasi ukuran: 32x32px
+								atau 64x64px, format PNG atau ICO
+							</p>
+
+							{#if data.faviconUrl}
+								<div class="flex items-center gap-3 rounded border border-line bg-bg-subtle p-3">
+									<img
+										src={data.faviconUrl}
+										alt="Favicon saat ini"
+										class="h-8 w-8 object-contain"
+									/>
+									<div class="flex-1">
+										<p class="text-sm font-medium">Favicon saat ini</p>
+									</div>
+									<button
+										type="button"
+										onclick={() => {
+											$form.faviconMediaId = null;
+											data.faviconUrl = null;
+										}}
+										class="btn btn-sm preset-tonal-error-500"
+									>
+										Hapus
+									</button>
+								</div>
+							{/if}
+
+							<label
+								class="flex cursor-pointer items-center gap-3 rounded border-2 border-dashed border-line p-4 transition-colors hover:border-primary hover:bg-primary-50"
+							>
+								<input
+									type="file"
+									accept="image/*"
+									onchange={uploadFavicon}
+									disabled={faviconUploading}
+									class="hidden"
+								/>
+								<div class="flex-1">
+									<p class="font-medium">
+										{faviconUploading ? 'Mengunggah...' : 'Klik untuk unggah favicon'}
+									</p>
+									<p class="text-xs text-ink-muted">PNG, JPG, ICO, WebP • Max 1MB</p>
+								</div>
+								{#if faviconUploading}
+									<span
+										class="inline-block h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent"
+									></span>
+								{:else}
+									<span class="text-2xl">📤</span>
+								{/if}
 							</label>
 						</div>
 					</div>

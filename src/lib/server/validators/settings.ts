@@ -15,6 +15,9 @@ export const settingsSchema = z.object({
 	tiktok: optionalUrl,
 	googleMapsEmbed: z.string().trim().max(2000).optional().or(z.literal('')),
 	googleAnalyticsId: z.string().trim().max(60).optional().or(z.literal('')),
+	// Logo dan Favicon
+	logoMediaId: z.string().uuid().nullable().optional().default(null),
+	faviconMediaId: z.string().uuid().nullable().optional().default(null),
 	// Footer config
 	footerBrandingText: z.string().trim().max(500).optional().or(z.literal('')),
 	footerCopyrightText: z.string().trim().max(200).optional().or(z.literal('')),

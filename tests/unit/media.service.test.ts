@@ -109,3 +109,34 @@ describe('media.service.getMediaUrls', () => {
 		expect(mediaRepo.getByIds).toHaveBeenCalledWith(['m1', 'm2']);
 	});
 });
+
+describe('media.service.listMedia', () => {
+	it('rejects STAFF', async () => {
+		await expect(mediaService.listMedia(STAFF)).rejects.toMatchObject({
+			code: 'FORBIDDEN'
+		});
+		expect(mediaRepo.listRecent).not.toHaveBeenCalled();
+		expect(mediaRepo.listByUploader).not.toHaveBeenCalled();
+	});
+
+	it('returns recent media for ADMIN', async () => {
+		vi.mocked(mediaRepo.listRecent).mockResolvedValue([media()]);
+		const result = await mediaService.listMedia(ADMIN);
+		expect(result).toHaveLength(1);
+		expect(mediaRepo.listRecent).toHaveBeenCalledWith(200);
+	});
+
+	it('returns uploader media for EDITOR by default', async () => {
+		vi.mocked(mediaRepo.listByUploader).mockResolvedValue([media()]);
+		const result = await mediaService.listMedia(EDITOR);
+		expect(result).toHaveLength(1);
+		expect(mediaRepo.listByUploader).toHaveBeenCalledWith(EDITOR.id, 200);
+	});
+
+	it('returns all recent media when options.all is true', async () => {
+		vi.mocked(mediaRepo.listRecent).mockResolvedValue([media(), media({ id: 'm2' })]);
+		const result = await mediaService.listMedia(EDITOR, { all: true, limit: 100 });
+		expect(result).toHaveLength(2);
+		expect(mediaRepo.listRecent).toHaveBeenCalledWith(100);
+	});
+});

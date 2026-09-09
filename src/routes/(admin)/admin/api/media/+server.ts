@@ -1,7 +1,58 @@
 import { json, error } from '@sveltejs/kit';
+import { can, type Role } from '$lib/rbac';
 import { isAppError } from '$lib/server/errors';
 import * as mediaService from '$lib/server/services/media.service';
 import type { RequestHandler } from './$types';
+
+/**
+ * List media endpoint for media picker and library selection.
+ * Query params:
+ * - `kind`: 'image' | 'file'
+ * - `q`: search keyword
+ */
+export const GET: RequestHandler = async (event) => {
+	const session = await event.locals.auth();
+	if (!session?.user) throw error(401, 'Unauthorized');
+
+	const user = session.user;
+	const actor = { id: user.id, role: user.role as Role };
+
+	if (!can(actor.role, 'read', 'media')) throw error(403, 'Akses ditolak');
+
+	const kind = event.url.searchParams.get('kind');
+	const search = event.url.searchParams.get('q')?.toLowerCase().trim();
+
+	const items = await mediaService.listMedia(actor, { all: true, limit: 100 });
+
+	let filtered = items;
+	if (kind === 'image') {
+		filtered = filtered.filter((m) => m.mime.startsWith('image/'));
+	} else if (kind === 'file') {
+		filtered = filtered.filter((m) => !m.mime.startsWith('image/'));
+	}
+
+	if (search) {
+		filtered = filtered.filter(
+			(m) =>
+				m.originalName.toLowerCase().includes(search) ||
+				(m.altText && m.altText.toLowerCase().includes(search))
+		);
+	}
+
+	return json(
+		filtered.map((m) => ({
+			id: m.id,
+			url: m.url,
+			originalName: m.originalName,
+			mime: m.mime,
+			size: m.size,
+			width: m.width,
+			height: m.height,
+			altText: m.altText,
+			createdAt: m.createdAt
+		}))
+	);
+};
 
 /**
  * Media upload endpoint (multipart/form-data). Guarded by the admin session in

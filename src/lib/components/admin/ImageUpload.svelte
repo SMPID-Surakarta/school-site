@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { FolderOpen, Upload } from '@lucide/svelte';
+	import MediaPicker, { type SelectedMedia } from './MediaPicker.svelte';
+
 	type Props = {
 		/** Bound media id (FK to `media.id`). */
 		value?: string;
@@ -23,6 +26,7 @@
 	}: Props = $props();
 
 	let uploading = $state(false);
+	let pickerOpen = $state(false);
 	let errorMsg = $state<string | null>(null);
 
 	async function onChange(event: Event) {
@@ -53,6 +57,12 @@
 		}
 	}
 
+	function handlePickerSelect(media: SelectedMedia) {
+		value = media.id;
+		previewUrl = media.url;
+		pickerOpen = false;
+	}
+
 	function clear() {
 		value = undefined;
 		previewUrl = null;
@@ -65,13 +75,13 @@
 	{#if !enabled}
 		<p class="text-sm opacity-60">Unggah media sedang dinonaktifkan.</p>
 	{:else}
-		<div class="flex items-center gap-4">
+		<div class="flex flex-wrap items-center gap-3">
 			{#if previewUrl}
 				{#if kind === 'image'}
 					<img
 						src={previewUrl}
 						alt={label}
-						class="border-surface-200-800 h-20 w-20 rounded border object-cover"
+						class="border-surface-200-800 h-20 w-20 rounded border object-cover shadow-sm"
 						loading="lazy"
 					/>
 				{:else}
@@ -83,8 +93,18 @@
 				<button type="button" class="btn btn-sm preset-tonal-error" onclick={clear}>Hapus</button>
 			{/if}
 
+			<button
+				type="button"
+				class="btn btn-sm preset-filled-primary-500"
+				onclick={() => (pickerOpen = true)}
+			>
+				<FolderOpen size={14} class="mr-1" />
+				<span>{previewUrl ? 'Ganti dari Media' : 'Pilih dari Media'}</span>
+			</button>
+
 			<label class="btn btn-sm preset-tonal cursor-pointer">
-				{uploading ? 'Mengunggah…' : previewUrl ? 'Ganti' : 'Unggah'}
+				<Upload size={14} class="mr-1" />
+				<span>{uploading ? 'Mengunggah…' : 'Unggah Baru'}</span>
 				<input
 					type="file"
 					class="hidden"
@@ -96,5 +116,14 @@
 		</div>
 
 		{#if errorMsg}<span class="text-sm text-error-500">{errorMsg}</span>{/if}
+
+		<MediaPicker
+			open={pickerOpen}
+			title={`Pilih ${label}`}
+			{kind}
+			uploadEnabled={enabled}
+			onselect={handlePickerSelect}
+			oncancel={() => (pickerOpen = false)}
+		/>
 	{/if}
 </div>

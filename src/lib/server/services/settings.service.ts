@@ -83,6 +83,8 @@ export async function saveSettings(actorRole: Role, input: SettingsInput): Promi
 		address: emptyToNull(input.address),
 		phone: emptyToNull(input.phone),
 		email: emptyToNull(input.email),
+		logoMediaId: input.logoMediaId || null,
+		faviconMediaId: input.faviconMediaId || null,
 		socialMedia: Object.keys(socialMedia).length ? socialMedia : null,
 		googleMapsEmbed: emptyToNull(input.googleMapsEmbed),
 		googleAnalyticsId: emptyToNull(input.googleAnalyticsId),

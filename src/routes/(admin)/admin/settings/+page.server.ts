@@ -5,6 +5,7 @@ import { type Role } from '$lib/rbac';
 import { isAppError } from '$lib/server/errors';
 import { settingsSchema } from '$lib/server/validators/settings';
 import * as settingsService from '$lib/server/services/settings.service';
+import * as mediaService from '$lib/server/services/media.service';
 import * as menusService from '$lib/server/services/menus.service';
 import type { FooterConfig } from '$lib/db/schema';
 import type { Actions, PageServerLoad } from './$types';
@@ -22,6 +23,12 @@ export const load: PageServerLoad = async (event) => {
 		showSocialMedia: true,
 		selectedMenuIds: []
 	};
+
+	// Get media URLs if they exist
+	const logoUrl = current?.logoMediaId ? await mediaService.getMediaUrl(current.logoMediaId) : null;
+	const faviconUrl = current?.faviconMediaId
+		? await mediaService.getMediaUrl(current.faviconMediaId)
+		: null;
 
 	// Fetch available menus for footer selection (gracefully handle errors)
 	let allMenus: Array<{ id: string; title: string }> = [];
@@ -49,6 +56,8 @@ export const load: PageServerLoad = async (event) => {
 				youtube: social.youtube ?? '',
 				facebook: social.facebook ?? '',
 				tiktok: social.tiktok ?? '',
+				logoMediaId: current?.logoMediaId ?? null,
+				faviconMediaId: current?.faviconMediaId ?? null,
 				googleMapsEmbed: current?.googleMapsEmbed ?? '',
 				googleAnalyticsId: current?.googleAnalyticsId ?? '',
 				footerBrandingText: footer.brandingText ?? '',
@@ -61,7 +70,9 @@ export const load: PageServerLoad = async (event) => {
 			},
 			zod4(settingsSchema)
 		),
-		menus: allMenus
+		menus: allMenus,
+		logoUrl,
+		faviconUrl
 	};
 };
 
